@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Http\JWT;
 use App\Http\Request;
 use App\Http\Response;
 use App\Services\UserService;
+use App\Utils\Validator;
 
 class UserController
 {
@@ -84,6 +86,45 @@ class UserController
             'jwt' => $userService
         ], 200);
     }
-    public function update(Request $request, Response $response) {}
-    public function remove(Request $request, Response $response, array $id) {}
+    public function update(Request $request, Response $response)
+    {
+        $autorization = $request::authorization();
+        $body = $request::body();
+
+        $userService = UserService::update($autorization, $body);
+
+        if (isset($userService['error'])) {
+            return $response::json([
+                'error' => true,
+                'success' => false,
+                'message' => $userService['error']
+            ], 400);
+        }
+
+        $response::json([
+            'error' => false,
+            'success' => true,
+            'message' => $userService
+        ], 200);
+    }
+    public function remove(Request $request, Response $response, array $id)
+    {
+        $authorization = $request::authorization();
+        $userService = UserService::delete($authorization, $id[0]);
+
+
+        if (isset($userService['error'])) {
+            return $response::json([
+                'error' => true,
+                'success' => false,
+                'message' => $userService['error']
+            ], 400);
+        }
+
+        $response::json([
+            'error' => false,
+            'success' => true,
+            'message' => $userService
+        ], 200);
+    }
 }

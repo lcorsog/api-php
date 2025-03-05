@@ -74,4 +74,48 @@ class UserService
             return ['error' => $e->getMessage()];
         }
     }
+
+    public static function update(mixed $authorization, array $data)
+    {
+        try {
+            if (isset($authorization["error"])) return ["error" => $authorization["error"]];
+
+            $userFromJWT = JWT::verify($authorization);
+            if (!$userFromJWT) return ["error" => "Please login to access this resource"];
+
+            $fields = Validator::validade([
+                'name' => $data['name'],
+                'email' => $data['email'],
+            ]);
+
+            $userService = User::update($userFromJWT["id"], $fields);
+
+            if (!$userService) return ['error' => "Desculpa mas não podemos atualizar seu usuário"];
+
+            return "Usuário atualizado com sucesso";
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public static function delete(mixed $authorization, int | string $id)
+    {
+        try {
+            if (isset($authorization["error"])) return ["error" => $authorization["error"]];
+
+            $userFromJWT = JWT::verify($authorization);
+            if (!$userFromJWT) return ["error" => "Please login to access this resource"];
+
+            $user = User::find($userFromJWT["id"]);
+            if (!$user) return ["error" => "User dot not exist in the db"];
+
+            $userService = User::delete($id);
+
+            if (!$userService) return ['error' => "Desculpa mas não podemos deletar seu usuário"];
+
+            return "Usuário deletado com sucesso";
+        } catch (\Exception $e) {
+            return ['error' => $e->getMessage()];
+        }
+    }
 }

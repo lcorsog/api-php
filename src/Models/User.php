@@ -65,4 +65,26 @@ class User extends DataBase
         }
         return false;
     }
+
+    public static function update(int | string $id, array $data)
+    {
+        $pdo = self::getConnection();
+        $stmt = $pdo->prepare("UPDATE users SET name = :name, email = :email WHERE id = :id");
+        $stmt->bindParam(':name', $data['name']);
+        $stmt->bindParam(':email', $data['email']);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        return $stmt->rowCount() > 0 ? true : false;
+    }
+
+    public static function delete(int | string $id)
+    {
+        $pdo = self::getConnection();
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        return $stmt->rowCount() > 0 ? true : false;
+    }
 }
